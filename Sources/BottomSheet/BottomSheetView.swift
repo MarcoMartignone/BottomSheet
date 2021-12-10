@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Introspect
 
 @available(iOSApplicationExtension, unavailable)
 internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPositionEnum: RawRepresentable>: View where bottomSheetPositionEnum.RawValue == CGFloat, bottomSheetPositionEnum: CaseIterable {
@@ -25,19 +26,18 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
     }
     
     private var isBottomPosition: Bool {
-        if !self.options.noBottomPosition, let bottomPosition = self.allCases.first(where: { $0.rawValue != 0}) {
-            return self.bottomSheetPosition == bottomPosition
+        if !self.options.noBottomPosition, let bottomPositionRawValue = self.allCases.first(where: { $0.rawValue != 0})?.rawValue {
+            return self.bottomSheetPosition.rawValue == bottomPositionRawValue
         } else {
             return false
         }
     }
     
     private var isTopPosition: Bool {
-        if let topPosition = self.allCases.last {
-            return self.bottomSheetPosition == topPosition
-        } else {
-            return false
+        if let top = self.allCases.last, top == self.bottomSheetPosition {
+            return true
         }
+        return false
     }
     
     
@@ -110,7 +110,9 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                                         ScrollView {
                                             self.mainContent
                                         }
-                                        .disabled(!self.isTopPosition)
+                                        .introspectScrollView { scrollView in
+                                            scrollView.isScrollEnabled = self.isTopPosition
+                                        }
                                     } else {
                                         self.mainContent
                                     }
@@ -191,8 +193,8 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
     }
     
     private func closeSheet() -> Void {
-        if let hiddenPosition = bottomSheetPositionEnum(rawValue: 0) {
-            self.bottomSheetPosition = hiddenPosition
+        if let hidden = bottomSheetPositionEnum(rawValue: 0) {
+            self.bottomSheetPosition = hidden
         }
         
         self.endEditing()
@@ -210,7 +212,6 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                     self.bottomSheetPosition = self.allCases[currentIndex + 1]
                 }
             }
-            
         }
         
         self.endEditing()
@@ -220,6 +221,7 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
         if !self.isHiddenPosition {
             
             if let currentIndex = self.allCases.firstIndex(where: { $0 == self.bottomSheetPosition }), self.allCases.count > 1 {
+                
                 if height <= -0.1 && height > -0.3 {
                     if currentIndex < self.allCases.endIndex - 1 {
                         self.bottomSheetPosition = self.allCases[currentIndex + 1]
@@ -237,8 +239,8 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                         self.bottomSheetPosition = self.allCases[self.allCases.startIndex + 1]
                     }
                 }
+                
             }
-            
         }
         
         self.translation = 0
