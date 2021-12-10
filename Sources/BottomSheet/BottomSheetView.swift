@@ -169,8 +169,8 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                             }
                     )
             )
-            .frame(width: geometry.size.width, height: min(max((geometry.size.height * self.bottomSheetPosition.rawValue) - self.translation, 0), geometry.size.height * 1.05), alignment: .top)
-            .offset(y: max(self.isHiddenPosition ? geometry.size.height + geometry.safeAreaInsets.bottom : self.isBottomPosition ? geometry.size.height - (geometry.size.height * self.bottomSheetPosition.rawValue) + self.translation + geometry.safeAreaInsets.bottom : geometry.size.height - (geometry.size.height * self.bottomSheetPosition.rawValue) + self.translation, geometry.size.height * -0.05))
+            .frame(width: geometry.size.width, height: min(max((geometry.size.height + 34 * self.bottomSheetPosition.rawValue) - self.translation, 0), (geometry.size.height) * 1.05), alignment: .top)
+            .offset(y: max(self.isHiddenPosition ? geometry.size.height + geometry.safeAreaInsets.bottom : self.isBottomPosition ? geometry.size.height - (geometry.size.height * self.bottomSheetPosition.rawValue) + self.translation + geometry.safeAreaInsets.bottom : geometry.size.height - (geometry.size.height * self.bottomSheetPosition.rawValue) + self.translation - 34, geometry.size.height * -0.05))
             .transition(.move(edge: .bottom))
             .animation(self.options.animation)
         }
