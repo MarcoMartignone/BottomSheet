@@ -112,14 +112,20 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                                         ScrollView(showsIndicators: false) {
                                             self.mainContent
                                         }
-//                                        ScrollViewOffset(onOffsetChange: { (offset) in
-//                                            print("New ScrollView offset: \(offset)")
-//                                            if offset > 100 {
-//                                                self.switchPosition(with: 0.3)
-//                                            }
-//                                        }) {
-//                                            self.mainContent
-//                                        }
+                                        .gesture(
+                                            DragGesture(minimumDistance: 6.5)
+                                                .onChanged { value in
+                                                    if value.translation.height > 0 {
+                                                        self.translation = value.translation.height
+                                                    }
+                                                }
+                                                .onEnded { value in
+                                                    if value.translation.height > 0 {
+                                                        let height: CGFloat = value.translation.height / geometry.size.height
+                                                        self.switchPosition(with: height)
+                                                    }
+                                                }
+                                        )
                                         .introspectScrollView { scrollView in
                                             scrollView.isScrollEnabled = self.isTopPosition
                                         }
@@ -165,7 +171,6 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                     .gesture(
                         DragGesture()
                             .onChanged { value in
-                                print("BACKGROUND: \(value)")
                                 if !self.options.notResizeable {
                                     self.translation = value.translation.height
                                     self.endEditing()
