@@ -51,6 +51,7 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                     .contentShape(Rectangle())
                     .transition(.opacity)
                     .animation(.linear)
+                    .allowsHitTesting(self.isTopPosition ? true : false)
                     .onTapGesture(perform: self.tapToDismiss)
             }
             VStack(spacing: 0) {
@@ -59,8 +60,8 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                         Capsule()
                             .fill(self.options.dragIndicatorColor)
                             .frame(width: 36, height: 5)
-                            .padding(.top, 5)
-                            .padding(.bottom, 7)
+                            .padding(.top, 10)
+                            .padding(.bottom, 20)
                     })
                 }
                 if self.headerContent != nil || self.options.showCloseButton {
@@ -82,6 +83,7 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                     .gesture(
                         DragGesture()
                             .onChanged { value in
+                                print("CALLED HEADER: \(value)")
                                 if !self.options.notResizeable {
                                     self.translation = value.translation.height
                                     
@@ -107,9 +109,17 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                             if self.options.allowContentDrag || self.options.appleScrollBehavior {
                                 Group {
                                     if self.options.appleScrollBehavior {
-                                        ScrollView {
+                                        ScrollView(showsIndicators: false) {
                                             self.mainContent
                                         }
+//                                        ScrollViewOffset(onOffsetChange: { (offset) in
+//                                            print("New ScrollView offset: \(offset)")
+//                                            if offset > 100 {
+//                                                self.switchPosition(with: 0.3)
+//                                            }
+//                                        }) {
+//                                            self.mainContent
+//                                        }
                                         .introspectScrollView { scrollView in
                                             scrollView.isScrollEnabled = self.isTopPosition
                                         }
@@ -155,9 +165,9 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                     .gesture(
                         DragGesture()
                             .onChanged { value in
+                                print("BACKGROUND: \(value)")
                                 if !self.options.notResizeable {
                                     self.translation = value.translation.height
-                                    
                                     self.endEditing()
                                 }
                             }
@@ -169,8 +179,8 @@ internal struct BottomSheetView<hContent: View, mContent: View, bottomSheetPosit
                             }
                     )
             )
-            .frame(width: geometry.size.width, height: min(max((geometry.size.height + 34 * self.bottomSheetPosition.rawValue) - self.translation, 0), (geometry.size.height) * 1.05), alignment: .top)
-            .offset(y: max(self.isHiddenPosition ? geometry.size.height + geometry.safeAreaInsets.bottom : self.isBottomPosition ? geometry.size.height - (geometry.size.height * self.bottomSheetPosition.rawValue) + self.translation + geometry.safeAreaInsets.bottom : geometry.size.height - (geometry.size.height * self.bottomSheetPosition.rawValue) + self.translation - 34, geometry.size.height * -0.05))
+            .frame(width: geometry.size.width, height: min(max((geometry.size.height * self.bottomSheetPosition.rawValue) - self.translation, 0), (geometry.size.height) * 1.05), alignment: .top)
+            .offset(y: max(self.isHiddenPosition ? geometry.size.height + geometry.safeAreaInsets.bottom : self.isBottomPosition ? geometry.size.height - (geometry.size.height * self.bottomSheetPosition.rawValue) + self.translation + geometry.safeAreaInsets.bottom : geometry.size.height - (geometry.size.height * self.bottomSheetPosition.rawValue) + self.translation, geometry.size.height * -0.05))
             .transition(.move(edge: .bottom))
             .animation(self.options.animation)
         }
@@ -263,7 +273,7 @@ internal extension BottomSheetView where hContent == ModifiedContent<ModifiedCon
             self.init(bottomSheetPosition: bottomSheetPosition, options: options, headerContent: { return nil }, mainContent: content)
         } else {
             self.init(bottomSheetPosition: bottomSheetPosition, options: options, headerContent: { return Text(title!)
-                        .font(.title).bold().lineLimit(1).padding(.bottom) as? hContent }, mainContent: content)
+                .font(.title).bold().lineLimit(1).padding(.bottom) as? hContent }, mainContent: content)
         }
     }
 }

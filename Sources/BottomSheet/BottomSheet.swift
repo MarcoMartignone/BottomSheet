@@ -101,7 +101,7 @@ internal extension Array where Element == BottomSheet.Options {
     }
     
     var animation: Animation {
-        var animation: Animation = Animation.spring(response: 0.5, dampingFraction: 0.75, blendDuration: 1)
+        var animation: Animation = Animation.spring(response: 0.4, dampingFraction: 0.75, blendDuration: 1)
         
         self.forEach { item in
             if case .animation(let customAnimation) = item {
